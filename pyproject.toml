@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "fastapi-p8-group"
+version = "0.1.0"
+description = ""
+authors = ["xolmomin <xolmomin@gmail.com>"]
+readme = "README.md"
+packages = [{include = "fastapi_p8_group"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.94.1"
+uvicorn = "^0.21.0"
+python-multipart = "^0.0.6"
+pytest = "^7.2.2"
+flake8 = "^6.0.0"
+isort = "^5.12.0"
+mypy = "^1.1.1"
+python-dotenv = "^1.0.0"
+sqlalchemy = "^2.0.6"
+psycopg2-binary = "^2.9.5"
+passlib = "^1.7.4"
+bcrypt = "^4.0.1"
+ujson = "^5.7.0"
+httpx = "^0.23.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
