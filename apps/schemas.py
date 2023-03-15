@@ -6,7 +6,20 @@ from pydantic import BaseModel, validator
 from apps import models
 from apps.hashing import Hasher
 from database import get_db
+# RestFulApi
+# /users
+# /users/1
+# post, get
 
+# RestApi
+# /users/add
+# /users/delete
+# /users/update
+# /users/get
+
+# name, age, phone
+# put - toliq ([name], age, phone)
+# patch - qisman (name)
 
 class User(BaseModel):
     name: str

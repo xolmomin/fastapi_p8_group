@@ -6,3 +6,10 @@
 . pytest-cov
 . alembic
 .
+
+elasticsearch
+graphql
+redis
+celery
+docker
+
