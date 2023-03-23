@@ -5,9 +5,26 @@
 
 . pytest-cov
 . alembic
-.
+
+
+active account
+
+user (client, vip_client, admin)
+
+post (title(100), description(5000), is_premium)
+populate-post (n - 1000000)
+    background
+    redis
+    celery
+
+
 
 elasticsearch
+
+
+
+
+
 graphql
 redis
 celery

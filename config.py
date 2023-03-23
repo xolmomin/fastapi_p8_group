@@ -19,8 +19,9 @@ class Settings:
 
     SECRET_KEY: str = os.getenv('SECRET_KEY')
     ALGORITHM = 'HS256'
-    ACCESS_TOKEN_EXPIRE_MINUTES = 120  # in mins
+    ACCESS_TOKEN_EXPIRE_MINUTES = 15  # in mins
     DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES = 15  # in mins
+    REFRESH_TOKEN_EXPIRE_MINUTES = 120  # in mins
 
     TEST_USER_EMAIL = 'test@example.com'
     SMTP_HOST = os.getenv('SMTP_HOST')

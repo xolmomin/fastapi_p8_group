@@ -1,6 +1,7 @@
 import re
 
 from fastapi import File, Form, HTTPException, UploadFile
+from fastapi.params import Body
 from pydantic import BaseModel, validator
 
 from apps import models
@@ -105,7 +106,16 @@ class UpdateUser(BaseModel):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
+
+
+class RefreshToken(BaseModel):
+    refresh_token: str
+
+
+class ResponseRefreshToken(BaseModel):
+    access_token: str
 
 
 class User(BaseModel):
