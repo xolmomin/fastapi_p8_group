@@ -6,6 +6,7 @@ from pydantic import BaseModel, validator
 from apps import models
 from apps.hashing import Hasher
 from database import get_db
+
 # RestFulApi
 # /users
 # /users/1
@@ -20,12 +21,6 @@ from database import get_db
 # name, age, phone
 # put - toliq ([name], age, phone)
 # patch - qisman (name)
-
-class User(BaseModel):
-    name: str
-    email: str
-    password: str
-    image: str
 
 
 class UserForm(BaseModel):
@@ -106,3 +101,18 @@ class UpdateUser(BaseModel):
             image: UploadFile = File(None)
     ):
         return cls(name=name, email=email, password=password, image=image)
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class User(BaseModel):
+    email: str
+    name: str | None = None
+    is_active: bool | None = None
+
+
+class UserInDB(User):
+    password: str

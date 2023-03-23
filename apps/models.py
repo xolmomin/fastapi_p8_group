@@ -1,8 +1,7 @@
 import typing as t
 from datetime import datetime
 
-from sqlalchemy import (Boolean, DateTime, Integer,
-                        String, func)
+from sqlalchemy import Boolean, DateTime, Integer, String, func
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import Mapped, mapped_column
 
