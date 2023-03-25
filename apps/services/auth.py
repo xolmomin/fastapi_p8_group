@@ -9,9 +9,9 @@ from starlette import status
 from apps import models
 from apps.hashing import Hasher
 from apps.schemas import User, UserInDB
-from authentication import oauth2_scheme
-from config import settings
-from database import get_db
+from config.authentication import oauth2_scheme
+from config.db import get_db
+from config.settings import settings
 
 
 def get_user(db, email: str):

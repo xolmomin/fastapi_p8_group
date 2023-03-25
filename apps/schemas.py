@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 from fastapi import File, Form, HTTPException, UploadFile
 from fastapi.params import Body
@@ -6,7 +7,8 @@ from pydantic import BaseModel, validator
 
 from apps import models
 from apps.hashing import Hasher
-from database import get_db
+from config.db import get_db
+
 
 # RestFulApi
 # /users
@@ -22,6 +24,25 @@ from database import get_db
 # name, age, phone
 # put - toliq ([name], age, phone)
 # patch - qisman (name)
+
+
+class Country(BaseModel):
+    countries: list[str]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "countries": ['turkey', 'india', 'uzbekistan', 'russia', 'china', 'usa', 'uk', 'australia'],
+            }
+        }
+
+
+class University(BaseModel):
+    country: Optional[str] = None
+    web_pages: list[str] = []
+    name: Optional[str] = None
+    alpha_two_code: Optional[str] = None
+    domains: list[str] = []
 
 
 class UserForm(BaseModel):

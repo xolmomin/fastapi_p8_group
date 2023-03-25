@@ -3,6 +3,7 @@ import sys
 from typing import Any, Generator
 
 import pytest
+from database import get_db
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -10,7 +11,6 @@ from sqlalchemy.orm import sessionmaker
 
 from apps.models import Base
 from apps.routes import user
-from database import get_db
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

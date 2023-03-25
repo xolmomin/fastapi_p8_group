@@ -23,6 +23,9 @@ bcrypt = "^4.0.1"
 ujson = "^5.7.0"
 httpx = "^0.23.3"
 python-jose = "^3.3.0"
+faker = "^18.3.1"
+flower = "^1.2.0"
+celery = "^5.2.7"
 
 
 [build-system]

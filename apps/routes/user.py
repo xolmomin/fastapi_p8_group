@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from apps import models, schemas
-from database import get_db
+from config.db import get_db
 
 user = APIRouter(tags=['user'])
 

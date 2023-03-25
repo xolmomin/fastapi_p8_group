@@ -1,4 +1,3 @@
-from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -11,8 +10,7 @@ from apps.services import (authenticate_user, create_access_token,
                            get_current_active_user)
 from apps.services.auth import (create_refresh_token,
                                 get_access_token_by_refresh_token)
-from config import settings
-from database import get_db
+from config.db import get_db
 
 auth = APIRouter(tags=['auth'])
 
