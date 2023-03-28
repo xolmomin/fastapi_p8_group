@@ -22,11 +22,20 @@ populate-post (n - 1000000)
 elasticsearch
 
 
-
-
-
 graphql
 redis
 celery
 docker
 
+
+amqp://guest:**@127.0.0.1:5672//
+http
+ftp
+ws
+smtp
+
+celery -A main.celery worker --loglevel=info
+celery -A main.celery flower --port=5555
+
+
+docker run --rm -it -p 15672:15672 -p 5672:5672 rabbitmq:3-management

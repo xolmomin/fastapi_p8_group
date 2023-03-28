@@ -1,3 +1,4 @@
+import time
 
 from celery import shared_task
 
@@ -19,6 +20,11 @@ def get_university_task(self, country: str):
     university = universities.get_all_universities_for_country(country)
     return university
 
+
+@shared_task
+def calculate():
+    time.sleep(50)
+    return 1
 
 # memory, cpu
 # speed

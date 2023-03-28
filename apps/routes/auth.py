@@ -1,7 +1,7 @@
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
+from starlette.responses import Response
 
 from apps import schemas
 from apps.forms import CustomOAuth2PasswordRequestForm
@@ -13,6 +13,11 @@ from apps.services.auth import (create_refresh_token,
 from config.db import get_db
 
 auth = APIRouter(tags=['auth'])
+
+
+@auth.post('/register')
+async def register():
+    return Response('success')
 
 
 @auth.post('/token', response_model=Token)

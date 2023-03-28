@@ -1,13 +1,31 @@
 from celery import group
+from celery.result import AsyncResult
 from fastapi import APIRouter
 from starlette.responses import JSONResponse
 
 from apps.api import universities
 from apps.schemas import Country
-from celery_tasks.tasks import get_all_universities_task, get_university_task
+from celery_tasks.tasks import get_all_universities_task, get_university_task, calculate
 from config.celery_utils import get_task_info
 
 router = APIRouter(prefix='/universities', tags=['University'], responses={404: {"description": "Not found"}})
+
+
+@router.get("/data")
+def get_data():
+    response = calculate.delay()
+    return JSONResponse(response.id)
+
+
+@router.get("/data/status/{uuid}")
+def get_status(uuid: str):
+    response = AsyncResult(uuid)
+    return JSONResponse(response.status)
+
+@router.get("/data/result/{uuid}")
+def get_status(uuid: str):
+    response = get_task_info(uuid)
+    return JSONResponse(response)
 
 
 @router.post("/")
