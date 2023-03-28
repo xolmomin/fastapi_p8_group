@@ -19,6 +19,7 @@ populate-post (n - 1000000)
 
 
 
+
 elasticsearch
 
 
@@ -39,3 +40,22 @@ celery -A main.celery flower --port=5555
 
 
 docker run --rm -it -p 15672:15672 -p 5672:5672 rabbitmq:3-management
+
+
+
+
+user register
+email
+- code (6)
+
+is_active
+
+
+
+phone
+
+twillo
+
+
+
+
