@@ -1,23 +1,45 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import UJSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import Response
 
-from apps import schemas
+from apps import schemas, models
 from apps.forms import CustomOAuth2PasswordRequestForm
 from apps.schemas import Token, User
 from apps.services import (authenticate_user, create_access_token,
                            get_current_active_user)
 from apps.services.auth import (create_refresh_token,
                                 get_access_token_by_refresh_token)
+from apps.utils import send_sms
 from config.db import get_db
 
 auth = APIRouter(tags=['auth'])
 
 
 @auth.post('/register')
-async def register():
-    return Response('success')
+async def register(
+        db: Session = Depends(get_db),
+        form: schemas.RegisterForm = Depends(schemas.RegisterForm.as_form)
+):
+    data = form.dict(exclude_unset=True)
+    task = get_ver_code_task.apply_async(args=[(data.get('email'), data.get('ver_code'))])
+    user_ = models.Users(**data)
+    db.add(user_)
+    db.commit()
+    return UJSONResponse({'message': 'success'})
+
+
+# @auth.post('/verification_code')
+# async def verification_code(form: schemas.VerificationForm = Depends(schemas.VerificationForm.as_form),
+#                             db: Session = Depends(get_db)):
+#     user_ = db.query(models.Users).where(models.Users.email == form.email,
+#                                          models.Users.ver_code == form.ver_code).first()
+#     if not user_:
+#         raise status.HTTP_422_UNPROCESSABLE_ENTITY
+#     user_.is_active = True
+#     db.commit()
+#     return status.HTTP_202_ACCEPTED
 
 
 @auth.post('/token', response_model=Token)
