@@ -26,6 +26,7 @@ python-jose = "^3.3.0"
 faker = "^18.3.1"
 flower = "^1.2.0"
 celery = "^5.2.7"
+redis = "^4.5.4"
 
 
 [build-system]
