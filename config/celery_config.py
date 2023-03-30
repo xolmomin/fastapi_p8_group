@@ -3,6 +3,8 @@ from functools import lru_cache
 
 from kombu import Queue
 
+from config.settings import Settings
+
 
 def route_task(name, args, kwargs, options, task=None, **kw):
     if ":" in name:
@@ -17,6 +19,7 @@ class BaseConfig:
     CELERY_RESULT_BACKEND: str = os.environ.get("CELERY_RESULT_BACKEND",
                                                 'db+postgresql://postgres:1@localhost:5432/falcon')
 
+class BaseConfig(Settings):
 
 
 
