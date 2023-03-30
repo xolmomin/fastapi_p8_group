@@ -27,6 +27,9 @@ class BaseCreateDate:
                                                  onupdate=func.current_timestamp())
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
+    def __str__(self) -> str:
+        return str(self.id)
+
 
 class Users(Base, BaseCreateDate):
     class Type(enum.Enum):

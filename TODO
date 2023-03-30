@@ -1,52 +1,33 @@
-1. response model (schema)
-2. crud
-3. form
-
 
 . pytest-cov
 . alembic
 
 
-active account
+tasks
+0)
+    post (title(100), description(5000), is_premium)
+    api populate-post (n - 1000000)
 
-user (client, vip_client, admin)
-
-post (title(100), description(5000), is_premium)
-populate-post (n - 1000000)
-    background
-    redis
-    celery
-
+1) vip_client bolsa premium post larni ham olishi kk
+2) post ni ochirish authori bolsa ochirish kk
+3) redis (2 - minutes) verification hammasi redis orqali
 
 
+
+alembic
+docker (redis, rabbitmq, pg, fastapi, elasticsearch) docker-compose
+
+n) cache
 
 elasticsearch
 
 
 graphql
-redis
-celery
 docker
 
-
-amqp://guest:**@127.0.0.1:5672//
-http
-ftp
-ws
-smtp
 
 celery -A main.celery worker --loglevel=info
 celery -A main.celery flower --port=5555
 
 
 docker run --rm -it -p 15672:15672 -p 5672:5672 rabbitmq:3-management
-
-
-
-
-user register
-email
-- code (6)
-
-is_active
-

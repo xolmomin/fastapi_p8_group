@@ -11,3 +11,4 @@ class Hasher:
     @staticmethod
     def make_hash(password: str) -> str:
         return pwd_context.hash(password)
+

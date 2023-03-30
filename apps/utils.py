@@ -47,7 +47,7 @@ def send_message(phone: str, msg: str = None):
     response = httpx.post(url, headers=headers, data=payload)
 
     print(response.text)
-    return response.text
+    return code, response.text
 
 
 def auth_eskiz():

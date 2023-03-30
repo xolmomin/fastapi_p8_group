@@ -8,7 +8,7 @@ from starlette import status
 
 from apps import models
 from apps.hashing import Hasher
-from apps.schemas import User, UserInDB
+from apps.schemas import User, UserInDB, UserData
 from config.authentication import oauth2_scheme
 from config.db import get_db
 from config.settings import settings
@@ -65,6 +65,7 @@ def create_access_token(email: str):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY)
     return encoded_jwt
 
+
 def create_refresh_token(email: str):
     expire = datetime.utcnow() + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     payload = {
@@ -95,7 +96,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+async def get_current_active_user(current_user: UserData = Depends(get_current_user)):
     if not current_user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

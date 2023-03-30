@@ -52,9 +52,11 @@ class RegisterForm(BaseModel):
 
     @root_validator
     def check_passwords_match(cls, values):
-        pw1, pw2 = values.get('password'), values.pop('confirm_password')
+        pw1: str = values.get('password')
+        pw2: str = values.pop('confirm_password')
         if pw1 is not None and pw2 is not None and pw1 != pw2:
             raise HTTPException(400, 'passwords do not match')
+        values['password'] = Hasher.make_hash(pw1)
         return values
 
     @classmethod
@@ -168,5 +170,62 @@ class User(BaseModel):
     is_active: bool | None = None
 
 
-class UserInDB(User):
+class UserData(BaseModel):
+    id: int | None = None
+    email: str
+    name: str | None = None
+    phone: int | None = None
+    is_active: bool | None = None
+    is_verified_phone: bool | None = None
+
+
+class UserInDB(UserData):
     password: str
+
+
+class VerificationPhoneForm(BaseModel):
+    phone: str
+    code: str
+
+    class Config:
+        orm_mode = True
+
+    @validator('phone')
+    def validate_phone(cls, value):
+        db = next(get_db())
+        user = db.query(models.Users).where(models.Users.phone == value).count()
+        if not user:
+            raise HTTPException(400, "Phone doesn't exists")
+        return value
+
+    @classmethod
+    def as_form(
+            cls,
+            phone: str = Form(...),
+            code: str = Form(...),
+    ):
+        return cls(phone=phone, code=code)
+
+
+class VerificationForm(BaseModel):
+    email: str
+    code: str
+
+    class Config:
+        orm_mode = True
+
+    @validator('email')
+    def validate_email(cls, value):
+        db = next(get_db())
+        user = db.query(models.Users).where(models.Users.email == value).count()
+        if not user:
+            raise HTTPException(400, "Email address doesn't exists")
+        return value
+
+    @classmethod
+    def as_form(
+            cls,
+            email: str = Form(...),
+            code: str = Form(...),
+    ):
+        return cls(email=email, code=code)
