@@ -1,8 +1,7 @@
-import time
-
 from celery import shared_task
 
 from apps.api import universities
+from apps.utils import send_email
 
 
 @shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=True, retry_kwargs={"max_retries": 5},
@@ -22,9 +21,5 @@ def get_university_task(self, country: str):
 
 
 @shared_task
-def calculate():
-    time.sleep(50)
-    return 1
-
-# memory, cpu
-# speed
+def async_send_email(email: str, code: int):
+    send_email(email, str(code))

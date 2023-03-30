@@ -30,6 +30,8 @@ class Settings:
     SMTP_PORT: str = os.getenv('SMTP_PORT')
     SMTP_EMAIL: str = os.getenv('SMTP_EMAIL')
     SMTP_PASSWORD: str = os.getenv('SMTP_PASSWORD')
+    ESKIZ_EMAIL: str = os.getenv('ESKIZ_EMAIL')
+    ESKIZ_PASSWORD: str = os.getenv('ESKIZ_PASSWORD')
 
 
 settings = Settings()

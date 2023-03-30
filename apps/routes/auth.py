@@ -2,16 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import UJSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
-from starlette.responses import Response
 
-from apps import schemas, models
+from apps import models, schemas
 from apps.forms import CustomOAuth2PasswordRequestForm
 from apps.schemas import Token, User
 from apps.services import (authenticate_user, create_access_token,
                            get_current_active_user)
 from apps.services.auth import (create_refresh_token,
                                 get_access_token_by_refresh_token)
-from apps.utils import send_sms
+from apps.utils import generate_number
+from celery_tasks.tasks import async_send_email
 from config.db import get_db
 
 auth = APIRouter(tags=['auth'])
@@ -23,10 +23,12 @@ async def register(
         form: schemas.RegisterForm = Depends(schemas.RegisterForm.as_form)
 ):
     data = form.dict(exclude_unset=True)
-    task = get_ver_code_task.apply_async(args=[(data.get('email'), data.get('ver_code'))])
+
+    code = generate_number()
     user_ = models.Users(**data)
     db.add(user_)
     db.commit()
+    async_send_email.delay(data['email'], code)
     return UJSONResponse({'message': 'success'})
 
 
