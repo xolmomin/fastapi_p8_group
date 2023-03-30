@@ -67,8 +67,8 @@ def generate_fake_users():
 
 @app.on_event('startup')
 def startup_event():
-    # models.Base.metadata.drop_all(engine)
-    # models.Base.metadata.create_all(engine)
+    models.Base.metadata.drop_all(engine)
+    models.Base.metadata.create_all(engine)
     app.include_router(routes.post)
     app.include_router(routes.router)
     app.include_router(routes.user)
