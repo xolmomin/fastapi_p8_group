@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,Request
 from fastapi.responses import UJSONResponse
 from pydantic import Field
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 from starlette import status
+from starlette.responses import Response
 
 from apps import models, schemas
 from apps.forms import CustomOAuth2PasswordRequestForm
@@ -15,6 +16,7 @@ from apps.services.auth import (create_refresh_token,
 from apps.utils import generate_number, send_message
 from celery_tasks.tasks import async_send_email
 from config.db import get_db
+from config.settings import manager
 
 auth = APIRouter(tags=['auth'])
 
@@ -95,7 +97,6 @@ async def verification_phone(
         db: Session = Depends(get_db)
 ):
     user = db.query(models.Users).filter_by(phone=form.phone).first()
-
     verify = db.query(models.Verification).where(
         models.Verification.user == user,
         models.Verification.code == form.code,
@@ -150,3 +151,37 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @auth.get("/users/me/items/")
 async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": "Foo", "owner": current_user.email}]
+
+
+
+
+
+
+@auth.post('/login', name='login')
+def auth_login(
+        request: Request,
+        # token = Depends(oauth2_scheme),
+        form: schemas.LoginForm = Depends(schemas.LoginForm.as_form),
+        db: Session = Depends(get_db),
+        form_data: CustomOAuth2PasswordRequestForm = Depends()
+):
+    user = authenticate_user(db, form_data.email, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    else:
+        access_token = manager.create_access_token(
+            data={"sub": user.email}
+        )
+        resp = Response('Super')
+        manager.set_cookie(resp, access_token)
+        return resp
+
+@auth.get('/logout', name='logout')
+def auth_logout(request: Request, current_user=Depends(manager)):
+    response = Response("User Logout")
+    response.delete_cookie("access-token")
+    return response

@@ -9,7 +9,7 @@ from apps import models, routes
 from apps.hashing import Hasher
 from config.celery_utils import create_celery
 from config.db import engine, get_db
-from config.settings import settings
+from config.settings import settings, manager
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -74,6 +74,14 @@ def startup_event():
     app.include_router(routes.user)
     app.include_router(routes.auth)
     generate_fake_users()
+
+
+@manager.user_loader()
+def load_user(email: str):
+    db = next(get_db())
+    user = db.query(models.Users).where(models.Users.email == email, models.Users.is_active).first()
+    db.close()
+    return user
 
 
 @app.on_event('shutdown')

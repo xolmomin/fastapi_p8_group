@@ -7,7 +7,7 @@ from pydantic import BaseModel, validator, root_validator
 
 from apps import models
 from apps.hashing import Hasher
-from config.db import get_db
+from config.db import get_db, Session
 
 
 class Country(BaseModel):
@@ -229,3 +229,31 @@ class VerificationForm(BaseModel):
             code: str = Form(...),
     ):
         return cls(email=email, code=code)
+
+
+
+class LoginForm(BaseModel):
+    email: str
+    password: str
+
+    class Config:
+        orm_mode = True
+
+    def is_valid(self, db: Session):
+        errors = []
+
+        user: models.Users = db.query(models.Users).filter(models.Users.email == self.email).first()
+        if not user:
+            errors.append('User not found!')
+        elif not Hasher.check_hash(self.password, user.password):
+            errors.append('Password does not match!')
+
+        return errors, user
+
+    @classmethod
+    def as_form(
+            cls,
+            email: str = Form(...),
+            password: str = Form(...),
+    ):
+        return cls(email=email, password=password)

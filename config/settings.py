@@ -1,6 +1,7 @@
 import os
 
 from dotenv import load_dotenv
+from fastapi_login import LoginManager
 
 load_dotenv('.env')
 
@@ -16,7 +17,7 @@ class Settings:
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "tdd")
     PG_URL: str = f'{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}'
     DATABASE_URL: str = f"postgresql+psycopg2://{PG_URL}"
-    CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "amqp://guest:guest@localhost:5672//")
+    CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
     CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND", f'db+postgresql://{PG_URL}')
 
     SECRET_KEY: str = os.getenv('SECRET_KEY')
@@ -35,3 +36,5 @@ class Settings:
 
 
 settings = Settings()
+
+manager = LoginManager(settings.SECRET_KEY, '/login', use_cookie=True)

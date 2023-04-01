@@ -38,7 +38,7 @@ class Users(Base, BaseCreateDate):
         VIP_CLIENT = 'VIP_CLIENT'
 
     name: Mapped[str] = mapped_column(String(100))
-    type: Mapped[str] = mapped_column(Enum(Type), server_default=Type.CLIENT.name)  # TODO change lowercase
+    type: Mapped[str] = mapped_column(Enum(Type), server_default=Type.VIP_CLIENT.name)  # TODO change lowercase
     email: Mapped[str] = mapped_column(String(50), unique=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     image: Mapped[str] = mapped_column(String(255), nullable=True)

@@ -5,7 +5,7 @@ from random import choice
 from time import time
 
 from faker import Faker
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,Request
 from fastapi.params import Depends
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
@@ -14,7 +14,11 @@ from starlette import status
 from starlette.background import BackgroundTasks
 
 from apps import models, schemas
+from apps.forms import CustomOAuth2PasswordRequestForm
+from apps.models import Users
+from apps.services import authenticate_user
 from config.db import get_db
+from config.settings import manager
 
 post = APIRouter(tags=['post'])
 
@@ -52,8 +56,37 @@ async def add_post(
     background.add_task(_generate_posts, db, n)
     return {'message': 'Successfully added posts!'}
 
-#
-#
+
+
+@post.get('/product')
+async def get_product(
+        current_user=Depends(manager),
+        db: Session = Depends(get_db)
+):
+    if current_user.type != models.Users.Type.CLIENT:
+        return db.query(models.Post).all()
+    else:
+        data = db.query(models.Post).filter(models.Post.is_premium == False).all()
+        return data
+
+
+@post.delete('/product/{id}')
+async def delete_post(
+        id: int,
+        current_user = Depends(manager),
+        db: Session = Depends(get_db)
+):
+    product = db.query(models.Post).filter(id == models.Post.id).first()
+    if not product:
+        return 'there is not product'
+    elif current_user.id == product.author_id:
+        db.delete(product)
+        db.commit()
+        return {'message': 'Successfully Deleted'}
+    else:
+        return 'you can not deleted'
+
+
 # @post.patch('/posts/{pk}')
 # async def update_post(
 #         pk: int,
