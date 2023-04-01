@@ -12,7 +12,7 @@ class CustomOAuth2PasswordRequestForm(OAuth2PasswordRequestForm):
             password: str = Form(),
             scope: str = Form(default=""),
             client_id: Optional[str] = Form(default=None),
-            client_secret: Optional[str] = Form(default=None),
+            client_secret: Optional[str] = Form(default=None)
     ):
         self.grant_type = grant_type
         self.email = email
@@ -20,5 +20,4 @@ class CustomOAuth2PasswordRequestForm(OAuth2PasswordRequestForm):
         self.scopes = scope.split()
         self.client_id = client_id
         self.client_secret = client_secret
-        # super().__init__(grant_type,email, password, scope, client_id, client_secret)
 

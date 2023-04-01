@@ -1,24 +1,12 @@
-import os
-import shutil
-
-from fastapi import APIRouter, HTTPException
-from fastapi.params import Depends
-from sqlalchemy import update
-from sqlalchemy.exc import NoResultFound
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from starlette import status
 
-from apps import models, schemas
+from apps import schemas
+from apps.services.user import (_delete_user, _get_user, get_all_users,
+                                save_user, update_user_save)
 from config.db import get_db
 
 user = APIRouter(tags=['user'])
-
-
-async def get_or_404(db: Session, model, **kwargs):
-    try:
-        return db.query(model).filter_by(**kwargs).one()
-    except NoResultFound as e:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, e)
 
 
 @user.post('/users')
@@ -26,22 +14,7 @@ async def add_user(
         form: schemas.UserForm = Depends(schemas.UserForm.as_form),
         db: Session = Depends(get_db)
 ):
-    form = form.dict(exclude_unset=True)
-    image = form.get('image')
-    if image:
-        folder = 'media/users/'
-        file_url = folder + image.filename
-        if not os.path.exists(folder):
-            os.mkdir(folder)
-        with open(file_url, "wb") as buffer:
-            shutil.copyfileobj(image.file, buffer)
-        form['image'] = file_url
-
-    user = models.Users(**form)
-
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    user = await save_user(db, form)
     return user
 
 
@@ -51,36 +24,22 @@ async def update_user(
         form: schemas.UpdateUser = Depends(schemas.UpdateUser.as_form),
         db: Session = Depends(get_db)
 ):
-    user = await get_or_404(db, models.Users, id=pk)
-    form = form.dict(exclude_none=True)
-    image = form.get('image')
-    if image:
-        folder = 'media/users/'
-        file_url = folder + image.filename
-        if not os.path.exists(folder):
-            os.mkdir(folder)
-        with open(file_url, "wb") as buffer:
-            shutil.copyfileobj(image.file, buffer)
-        form['image'] = file_url
-    query = update(models.Users).filter_by(id=pk).values(**form)
-    db.execute(query)
-    db.commit()
-    db.refresh(user)
+    user = await update_user_save(pk, form, db)
     return user
 
 
 @user.get('/users')
 async def get_users(db: Session = Depends(get_db)):
-    return db.query(models.Users).all()
+    users = await get_all_users(db)
+    return users
 
 
-@user.get('/users/{pk}')
+@user.get('/user/{pk}')
 async def get_user(pk: int, db: Session = Depends(get_db)):
-    return db.query(models.Users).filter_by(id=pk).first()
+    user = await _get_user(db, pk)
+    return user
 
 
 @user.delete('/users/{pk}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(pk: int, db: Session = Depends(get_db)):
-    user = await get_or_404(db, models.Users, id=pk)
-    db.delete(user)
-    db.commit()
+    await _delete_user(pk, db)

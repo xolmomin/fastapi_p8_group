@@ -14,15 +14,11 @@ def route_task(name, args, kwargs, options, task=None, **kw):
 
 
 class BaseConfig(Settings):
-
     CELERY_TASK_QUEUES: list = (
         # default queue
         Queue("celery"),
-        # custom queue
-        Queue("universities"),
-        Queue("university"),
+        Queue('post')
     )
-
     CELERY_TASK_ROUTES = (route_task,)
 
 
@@ -37,7 +33,7 @@ def get_settings():
     }
     config_name = os.environ.get("CELERY_CONFIG", "development")
     config_cls = config_cls_dict[config_name]
-    return config_cls()
+    return config_cls
 
 
 settings = get_settings()
