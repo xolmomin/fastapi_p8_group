@@ -13,24 +13,12 @@ def route_task(name, args, kwargs, options, task=None, **kw):
     return {"queue": "celery"}
 
 
-class BaseConfig:
-    CELERY_BROKER_URL: str = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
-    # CELERY_RESULT_BACKEND: str = os.environ.get("CELERY_RESULT_BACKEND", "rpc://")
-    CELERY_RESULT_BACKEND: str = os.environ.get("CELERY_RESULT_BACKEND",
-                                                'db+postgresql://postgres:1@localhost:5432/falcon')
-
 class BaseConfig(Settings):
-
-
-
-    # CELERY_TASK_QUEUES: list = (
-    #     # default queue
-    #     Queue("celery"),
-    #     # custom queue
-    #     Queue("universities"),
-    #     Queue("university"),
-    # )
-
+    CELERY_TASK_QUEUES: list = (
+        # default queue
+        Queue("celery"),
+        Queue('post')
+    )
     CELERY_TASK_ROUTES = (route_task,)
 
 
@@ -45,7 +33,7 @@ def get_settings():
     }
     config_name = os.environ.get("CELERY_CONFIG", "development")
     config_cls = config_cls_dict[config_name]
-    return config_cls()
+    return config_cls
 
 
 settings = get_settings()

@@ -1,73 +1,12 @@
 import re
-from typing import Optional
 
 from fastapi import File, Form, HTTPException, UploadFile
-from fastapi.params import Body
-from pydantic import BaseModel, validator, root_validator
+from pydantic import BaseModel, validator
+from sqlalchemy.orm import Session
 
 from apps import models
 from apps.hashing import Hasher
 from config.db import get_db
-
-
-class Country(BaseModel):
-    countries: list[str]
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "countries": ['turkey', 'india', 'uzbekistan', 'russia', 'china', 'usa', 'uk', 'australia'],
-            }
-        }
-
-
-class University(BaseModel):
-    country: Optional[str] = None
-    web_pages: list[str] = []
-    name: Optional[str] = None
-    alpha_two_code: Optional[str] = None
-    domains: list[str] = []
-
-
-class RegisterForm(BaseModel):
-    name: str
-    email: str
-    password: str
-    confirm_password: str
-
-    class Config:
-        orm_mode = True
-
-    @validator('email')
-    def validate_email(cls, value):
-        db = next(get_db())
-        q = db.query(models.Users).where(models.Users.email == value)
-        exists = db.query(q.exists()).first()[0]
-        if exists:
-            raise HTTPException(400, 'Email address must be unique')
-        regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-        if not re.search(regex, value):
-            raise HTTPException(400, 'Must be a valid email address')
-        return value
-
-    @root_validator
-    def check_passwords_match(cls, values):
-        pw1: str = values.get('password')
-        pw2: str = values.pop('confirm_password')
-        if pw1 is not None and pw2 is not None and pw1 != pw2:
-            raise HTTPException(400, 'passwords do not match')
-        values['password'] = Hasher.make_hash(pw1)
-        return values
-
-    @classmethod
-    def as_form(
-            cls,
-            name: str = Form(...),
-            email: str = Form(...),
-            password: str = Form(...),
-            confirm_password: str = Form(...),
-    ):
-        return cls(name=name, email=email, password=password, confirm_password=confirm_password)
 
 
 class UserForm(BaseModel):
@@ -81,7 +20,7 @@ class UserForm(BaseModel):
 
     @validator('password')
     def validate_password(cls, value):
-        if len(value) < 4:
+        if len(value) < 1:
             raise HTTPException(400, 'Password should be strong')
         return Hasher.make_hash(value)
 
@@ -91,7 +30,7 @@ class UserForm(BaseModel):
         q = db.query(models.Users).where(models.Users.email == value)
         exists = db.query(q.exists()).first()[0]
         if exists:
-            raise HTTPException(400, 'Email address must be unique')
+            raise HTTPException(400, 'Email is already used !')
         regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
         if not re.search(regex, value):
             raise HTTPException(400, 'Must be a valid email address')
@@ -121,7 +60,7 @@ class UpdateUser(BaseModel):
     def validate_password(cls, value):
         if not value:
             return
-        if len(value) < 4:
+        if len(value) < 1:
             raise HTTPException(400, 'Password should be strong')
         return Hasher.make_hash(value)
 
@@ -150,10 +89,117 @@ class UpdateUser(BaseModel):
         return cls(name=name, email=email, password=password, image=image)
 
 
-class Token(BaseModel):
+class RegisterForm(BaseModel):
+    name: str
+    email: str
+    password: str
+    confirm_password: str
+
+    class Config:
+        orm_mode = True
+
+    def is_valid(self, db: Session):
+        if self.confirm_password != self.password:
+            raise HTTPException(400, "Password did not match!")
+        regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        if not re.search(regex, self.email):
+            raise HTTPException(400, "Must be a valid email address")
+        self.confirm_password = None
+        q = db.query(models.Users).filter(models.Users.email == self.email)
+        exists = db.query(q.exists()).first()[0]
+        if exists:
+            raise HTTPException(400, 'Must be a unique email address')
+        self.password = Hasher.make_hash(self.password)
+
+    @classmethod
+    def as_form(
+            cls,
+            name: str = Form(...),
+            email: str = Form(...),
+            password: str = Form(...),
+            confirm_password: str = Form(...),
+    ):
+        return cls(
+            name=name,
+            email=email,
+            password=password,
+            confirm_password=confirm_password,
+        )
+
+
+class VerifyForm(BaseModel):
+    email: str
+    verify_code: int
+
+    class Config:
+        orm_mode = True
+
+    @validator('email')
+    def validate_email(cls, value):
+        db: Session = next(get_db())
+        regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        if not re.search(regex, value):
+            raise HTTPException(400, "Must be a valid email address")
+        user = db.query(models.Users).filter_by(email=value).first()
+        if not user:
+            raise HTTPException(400, "Email address doesn't exists !")
+        if user.is_active:
+            raise HTTPException(400, "Already confirmed !")
+        db.close()
+        return value
+
+    @classmethod
+    def as_form(
+            cls,
+            email: str = Form(...),
+            verify_code: int = Form(...),
+    ):
+        return cls(
+            email=email,
+            verify_code=verify_code,
+        )
+
+
+class AgainVerifyForm(BaseModel):
+    email: str
+
+    class Config:
+        orm_mode = True
+
+    @validator('email')
+    def validate_email(cls, value):
+        db: Session = next(get_db())
+        regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        if not re.search(regex, value):
+            raise HTTPException(400, "Must be a valid email address")
+        user = db.query(models.Users).filter_by(email=value).first()
+        if not user:
+            raise HTTPException(400, "Email address doesn't exists !")
+        if user.is_active:
+            raise HTTPException(400, "Already confirmed !")
+        db.close()
+        return value
+
+    @classmethod
+    def as_form(
+            cls,
+            email: str = Form(...),
+    ):
+        return cls(
+            email=email,
+        )
+
+
+class Login(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
+
+
+class Register(BaseModel):
+    name: str
+    email: str
+    password: str
 
 
 class RefreshToken(BaseModel):
@@ -170,62 +216,5 @@ class User(BaseModel):
     is_active: bool | None = None
 
 
-class UserData(BaseModel):
-    id: int | None = None
-    email: str
-    name: str | None = None
-    phone: int | None = None
-    is_active: bool | None = None
-    is_verified_phone: bool | None = None
-
-
-class UserInDB(UserData):
+class UserInDB(User):
     password: str
-
-
-class VerificationPhoneForm(BaseModel):
-    phone: str
-    code: str
-
-    class Config:
-        orm_mode = True
-
-    @validator('phone')
-    def validate_phone(cls, value):
-        db = next(get_db())
-        user = db.query(models.Users).where(models.Users.phone == value).count()
-        if not user:
-            raise HTTPException(400, "Phone doesn't exists")
-        return value
-
-    @classmethod
-    def as_form(
-            cls,
-            phone: str = Form(...),
-            code: str = Form(...),
-    ):
-        return cls(phone=phone, code=code)
-
-
-class VerificationForm(BaseModel):
-    email: str
-    code: str
-
-    class Config:
-        orm_mode = True
-
-    @validator('email')
-    def validate_email(cls, value):
-        db = next(get_db())
-        user = db.query(models.Users).where(models.Users.email == value).count()
-        if not user:
-            raise HTTPException(400, "Email address doesn't exists")
-        return value
-
-    @classmethod
-    def as_form(
-            cls,
-            email: str = Form(...),
-            code: str = Form(...),
-    ):
-        return cls(email=email, code=code)
