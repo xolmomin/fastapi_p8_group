@@ -1,5 +1,5 @@
-from typing import Optional
 import re
+from typing import Optional
 
 from fastapi import Form
 from fastapi.security import OAuth2PasswordRequestForm
@@ -51,6 +51,7 @@ class RegisterForm(BaseModel):
 
         self.password = Hasher.make_hash(self.password)
         return errors
+
     @classmethod
     def as_form(
             cls,
