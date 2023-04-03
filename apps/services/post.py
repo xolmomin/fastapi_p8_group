@@ -10,7 +10,7 @@ from apps import models
 from config.db import get_db
 
 
-@shared_task()
+@shared_task
 def generate_posts(n: int):
     db: Session = next(get_db())
     result = db.execute(select(models.Users.id).where(models.Users.status == models.Users.Status.ADMIN.name))

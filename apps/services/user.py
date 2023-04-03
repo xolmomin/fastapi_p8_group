@@ -27,7 +27,7 @@ async def save_user(db: Session, form: schemas.UserForm):
         file_url = folder + image.filename
         if not os.path.exists(folder):
             os.mkdir(folder)
-        with open(file_url, "wb") as buffer:
+        with open(file_url, 'wb') as buffer:
             shutil.copyfileobj(image.file, buffer)
         form['image'] = file_url
     user = models.Users(**form)

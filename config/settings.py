@@ -3,7 +3,7 @@ import os
 import redis
 from dotenv import load_dotenv
 
-load_dotenv('.env')
+load_dotenv()
 
 
 class Settings:
@@ -25,8 +25,10 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # in min
     DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # in min
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 120  # in min
+
     REDIS_VERIFY_EMAIL: int = 120  # in sec
-    REDIS_CLIENT = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    REDIS_CLIENT = redis.Redis('localhost', 6379, decode_responses=True)
+
     TEST_USER_EMAIL: str = 'test@example.com'
     SMTP_HOST: str = os.getenv('SMTP_HOST', 'smtp.gmail.com')
     SMTP_PORT: str = os.getenv('SMTP_PORT', '465')

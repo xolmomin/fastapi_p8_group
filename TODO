@@ -3,25 +3,33 @@
 . alembic
 
 
-tasks
 0)
     post (title(100), description(5000), is_premium)
     api populate-post (n - 1000000)
 
 1) vip_client bolsa premium post larni ham olishi kk
-2) post ni ochirish authori bolsa ochirish kk
-3) redis (2 - minutes) verification hammasi redis orqali
+
+
+next: docker (elasticsearch) docker-compose
 
 
 
 alembic
-docker (redis, rabbitmq, pg, fastapi, elasticsearch) docker-compose
 
-n) cache
+1-4
+fastapi + pg + sqlalchemy + alembic
+
+5-8
++redis, celery, elasticsearch
+
+
++ server
+
+
+
+
 
 elasticsearch
-
-
 graphql
 docker
 
@@ -31,3 +39,49 @@ celery -A main.celery flower --port=5555
 
 
 docker run --rm -it -p 15672:15672 -p 5672:5672 rabbitmq:3-management
+
+
+
+user
+first_name
+last_name
+birth_date
+
+passport_number
+phone_number
+university
+
+
+6 7 api
+
+1)
+    first_name
+    last_name
+2)
+    first_name
+    birth_date
+
+
+rest api
+
+delete
+
+[POST] /product/delete/4
+[GET] /product/delete/4
+[GET] /products/active
+
+
+[DELETE] /products/4
+[GET] /products?is_active=true
+
+
+[GET] posts - hammasini olish
+[POST] posts - yaratish
+
+[DELETE] posts - yaratish
+
+[GET] posts/:id - 1tasini olish
+[PATCH] posts/:id - 1tasini ozgartirish
+[PUT] posts/:id - 1tasini ozgartirish
+[DELETE] posts/:id - 1tasini ochirish
+

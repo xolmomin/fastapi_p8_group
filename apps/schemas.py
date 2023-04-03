@@ -129,7 +129,7 @@ class RegisterForm(BaseModel):
 
 class VerifyForm(BaseModel):
     email: str
-    verify_code: int
+    verify_code: str
 
     class Config:
         orm_mode = True
@@ -152,7 +152,7 @@ class VerifyForm(BaseModel):
     def as_form(
             cls,
             email: str = Form(...),
-            verify_code: int = Form(...),
+            verify_code: str = Form(...),
     ):
         return cls(
             email=email,

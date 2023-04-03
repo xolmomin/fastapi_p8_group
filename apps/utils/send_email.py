@@ -3,6 +3,9 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from celery import shared_task
+from celery.app import task
+
 from apps import models
 from config.settings import settings
 
@@ -21,9 +24,10 @@ def decode_data(uid):
     return base64.urlsafe_b64decode(uid).decode('utf-8')
 
 
-def send_reset_password_email(user: models.Users, verify_code: int) -> None:
+@shared_task
+def send_verification_email(user: models.Users, verify_code: str) -> None:
     message = MIMEMultipart()
-    message['Subject'] = 'Reset password link'
+    message['Subject'] = 'Activation Code'
     message['From'] = settings.SMTP_EMAIL
     message['To'] = user.email
     html = f"""\
@@ -34,9 +38,9 @@ def send_reset_password_email(user: models.Users, verify_code: int) -> None:
       </h1>
       <br>
       <h2>
-      Reset your password 👇 
+      Activate verify code your account 👇 
       <br>
-      {verify_code}
+      <b><code>{verify_code}</code></b>
       </h2>
     </html> 
     """

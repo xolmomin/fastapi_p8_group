@@ -1,12 +1,15 @@
 from fastapi import APIRouter, Depends
+from fastapi.security import (HTTPBasic, HTTPBasicCredentials,
+                              OAuth2PasswordRequestForm)
 from sqlalchemy.orm import Session
 
 from apps import schemas
-from apps.forms import CustomOAuth2PasswordRequestForm
-from apps.schemas import Login, VerifyForm, AgainVerifyForm
-from apps.services.auth import (get_access_token_by_refresh_token,
-                                get_current_activate_user, login_create_token, save_register_user,
-                                check_verify_code_worker, again_send_code_email_worker)
+from apps.schemas import AgainVerifyForm, Login, VerifyForm
+from apps.services.auth import (again_send_code_email_worker,
+                                check_verify_code_worker,
+                                get_access_token_by_refresh_token,
+                                get_current_activate_user, login_create_token,
+                                save_register_user)
 from config.db import get_db
 
 auth = APIRouter(tags=['auth'])
@@ -36,11 +39,11 @@ async def again_send_code_email(form: AgainVerifyForm = Depends(AgainVerifyForm.
 
 
 @auth.post('/login', response_model=Login)
-async def login_for_access_token(
-        form_data: CustomOAuth2PasswordRequestForm = Depends(),
+def login_for_access_token(
+        form_data: OAuth2PasswordRequestForm = Depends(),
         db: Session = Depends(get_db)
 ):
-    result = await login_create_token(form_data, db)
+    result = login_create_token(form_data, db)
     return result
 
 
@@ -57,16 +60,6 @@ async def login_for_access_token(
     return response
 
 
-@auth.get('/user/me/', response_model=schemas.User)
-async def read_user_me(current_user: schemas.User = Depends(get_current_activate_user)):
+@auth.get('/user/me-birthday/', response_model=schemas.User)
+def read_user_me(current_user: schemas.User = Depends(get_current_activate_user)):
     return current_user
-
-# @auth.get('/users/me/items/')
-# async def read_own_items(current_user: schemas.User = Depends(get_current_activate_user)):
-#     response = [
-#         {
-#             'item_id': 'Foo',
-#             'owner': current_user.email
-#         }
-#     ]
-#     return response

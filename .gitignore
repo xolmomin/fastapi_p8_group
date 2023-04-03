@@ -2,6 +2,7 @@
 .idea/**/tasks.xml
 .idea/
 *db
+.env
 media/
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
@@ -99,7 +100,6 @@ __pypackages__/
 celerybeat-schedule
 celerybeat.pid
 *.sage.py
-.env
 env/
 venv/
 ENV/
