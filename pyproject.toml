@@ -21,6 +21,8 @@ python-multipart = "^0.0.6"
 redis = "^4.5.4"
 sqlalchemy = "^2.0.8"
 ujson = "^5.7.0"
+elasticsearch = "^8.6.2"
+aiohttp = "^3.8.4"
 
 
 [build-system]

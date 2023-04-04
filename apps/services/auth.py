@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session
 
 from apps import models
 from apps.hashing import Hasher
-from apps.schemas import User, UserInDB
-from apps.utils.send_email import send_verification_email
+from apps.schemas import User
+from celery_tasks.email import send_verification_email
 from config.authentication import oauth2_scheme
 from config.db import get_db
 from config.settings import settings

@@ -5,7 +5,7 @@ from starlette import status
 
 from apps import models
 from apps.services import get_current_activate_user
-from apps.services.post import delete_all_post_worker, generate_posts
+from celery_tasks.post import delete_all_post_worker, generate_posts
 from config.db import get_db
 
 post = APIRouter(tags=['post'], prefix='/api')
